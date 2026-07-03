@@ -99,5 +99,5 @@ npm start
 This project is open-source and built for the AI-coding community. Feel free to open issues, submit Pull Requests, or fork it for your own autonomous setups!
 
 <div align="center">
-  <i>Built with ❤️ by Görkem Akçay & Antigravity</i>
+  <i>Built with ❤️ by Görkem Akçay</i>
 </div>
