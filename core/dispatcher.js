@@ -188,11 +188,21 @@ async function main() {
             }
 
             if (task.status === 'pending') {
-                const started = await dispatchTask(task);
-                if (started !== false) {
-                    // Sahte bir token kullanımı kaydedelim (gerçekte API döner)
-                    quotaGuard.recordUsage(task.tier, task.max_tokens || 1000);
+                // Eğer boş slot kalmadıysa diğer pending görevleri şimdilik pas geç
+                const freeSlots = wtManager.slots.filter(s => !s.busy);
+                if (freeSlots.length === 0) {
+                    console.log(`[Sistem] Bütün ajan slotları dolu! ${task.id} bekletiliyor...`);
+                    break;
                 }
+
+                console.log(`[Dispatcher] ${task.id} paralel olarak başlatılıyor...`);
+                // AWAIT YOK! Görevi arkaplanda ateşliyoruz (Fire and forget)
+                dispatchTask(task).catch(err => console.error(`[Dispatch Hatası]`, err));
+                
+                // Dosya yazma (updateTaskInJson) çakışmalarını önlemek için küçük bir bekleme
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                quotaGuard.recordUsage(task.tier, task.max_tokens || 1000);
             }
         }
     } catch (e) {
