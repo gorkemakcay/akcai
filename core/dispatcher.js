@@ -3,7 +3,25 @@ import fs from 'fs/promises';
 import { exec } from 'child_process';
 import util from 'util';
 
-const execAsync = util.promisify(exec);
+function execAsync(command) {
+    return new Promise((resolve, reject) => {
+        const child = exec(command, { maxBuffer: 1024 * 1024 * 50 }); // 50MB buffer
+        
+        // Sadece agy komutlarının loglarını canlı ekrana basalım
+        if (command.includes('agy')) {
+            child.stdout.pipe(process.stdout);
+            child.stderr.pipe(process.stderr);
+        }
+
+        let stdoutData = '';
+        child.stdout.on('data', data => stdoutData += data);
+
+        child.on('close', code => {
+            if (code !== 0) reject(new Error(`Command failed with code ${code}`));
+            else resolve({ stdout: stdoutData });
+        });
+    });
+}
 
 // dispatcher.js - MVP Orchestrator (Faz 4)
 // Bu dosya tasks.json'ı okur, görevlerin tier'ını belirler ve işi Codex'e delege eder.
