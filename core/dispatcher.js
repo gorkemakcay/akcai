@@ -60,10 +60,24 @@ async function dispatchTask(task) {
         // Eskalasyon Döngüsü (Faz 4 / Madde 5o)
         while (retries < (task.max_retries || 3) && !isValid) {
             retries++;
-            console.log(`[Executor] Codex'e devrediliyor: ${task.id} (Slot: ${slot.id}) - Deneme ${retries}/${task.max_retries || 3}`);
+            let model;
+            if (task.tier === 3) model = "Claude Opus 4.6 (Thinking)";
+            else if (task.tier === 2) model = "Claude Sonnet 4.6 (Thinking)";
+            else model = "Gemini 3.5 Flash (High)";
             
-            // Simüle edilmiş bekleme (Gerçekte claude-code-tools veya codex exec çağrılır)
-            await new Promise(r => setTimeout(r, 2000));
+            console.log(`[Executor] AGY (${model}) modeline devrediliyor: ${task.id} (Slot: ${slot.id}) - Deneme ${retries}/${task.max_retries || 3}`);
+            
+            try {
+                // Ajanın sistem promptu ve görev tanımı
+                const prompt = \`Sen bir uygulayıcı (Implementer) ajansın. Mevcut dizin bir git worktree'sidir. Sadece bu görevi yapacaksın: \${task.description}\`;
+                
+                // agy CLI ile ajanı headless (print) modda başlat.
+                // --dangerously-skip-permissions flag'i, ajanın terminal araçlarını (dosya yazma vb.) onay beklemeden kullanabilmesini sağlar (TAM OTONOMİ).
+                await execAsync(\`cd \${slot.path} && agy --model "\${model}" --print "\${prompt}" --dangerously-skip-permissions\`);
+                console.log(\`[AGY] \${task.id} için ajan çalışmasını tamamladı.\`);
+            } catch (err) {
+                console.error(\`[AGY] Ajan çalışırken hata fırlattı:\`, err.message);
+            }
             
             isValid = await checkBeforeHandoff(task);
             
