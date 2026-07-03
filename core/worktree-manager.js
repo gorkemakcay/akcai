@@ -38,12 +38,18 @@ export class WorktreeManager {
         freeSlot.busy = true;
         console.log(`[Worktree] ${taskId} görevi ${freeSlot.id} klasörüne (Branch: ${branchName}) atandı.`);
         
-        // Workspace-Sync (Faz 4): Slot'un develop branch'i geride kalmasın diye önce senkronize edilir
-        console.log(`[Git] ${freeSlot.id} güncelleniyor (Workspace-Sync)...`);
-        // await execAsync(`cd ${freeSlot.path} && git checkout develop && git pull origin develop`);
+        // Workspace-Sync (Faz 4): Worktree yoksa oluştur, varsa güncelle
+        console.log(`[Git] ${freeSlot.id} hazırlanıyor (Workspace-Sync)...`);
+        try {
+            await execAsync(`test -d ${freeSlot.path} || git worktree add -d ${freeSlot.path}`);
+        } catch (e) {
+            console.log(`[Worktree] Yeni worktree oluşturuluyor...`);
+            await execAsync(`git fetch origin develop || true`);
+            await execAsync(`git worktree add -d ${freeSlot.path}`);
+        }
         
-        // Slot içinde yeni görev branch'ini aç (ROTASYON mantığı)
-        // await execAsync(`cd ${freeSlot.path} && git checkout -b ${branchName}`);
+        // Slot içinde yeni görev branch'ini aç (origin/develop tabanlı)
+        await execAsync(`cd ${freeSlot.path} && git fetch origin develop || true && git checkout -B ${branchName} origin/develop || git checkout -b ${branchName}`);
 
         if (dbRequired) {
             console.log(`[Docker] ${taskId} için izole DB konteyneri ayağa kaldırılıyor: ${freeSlot.dbContainer}`);
