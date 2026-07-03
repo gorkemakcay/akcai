@@ -72,6 +72,10 @@ async function dispatchTask(task) {
         return false; // Başarısız
     }
 
+    // Arayüz (UI) için görevi In Progress'e çekiyoruz
+    task.status = 'in_progress';
+    await updateTaskInJson(task);
+
     if (task.tier === "auto") {
         console.log(`[Analiz] Tier 3 Mimar ajan ${task.id} görevini analiz ediyor...`);
         try {
@@ -136,6 +140,8 @@ async function dispatchTask(task) {
             const merged = await wtManager.attemptMergeToDevelop(slot.id, branchName);
             
             if (merged) {
+                task.status = 'completed_and_merged';
+                await updateTaskInJson(task);
                 await fs.appendFile(PROGRESS_FILE, JSON.stringify({
                     taskId: task.id,
                     status: 'completed_and_merged',
@@ -143,15 +149,20 @@ async function dispatchTask(task) {
                 }) + '\n');
             } else {
                 console.log(`[Dead-Letter] ${task.id} testlerden geçti ancak develop'a MERGE EDİLEMEDİ! Manuel onaya düştü.`);
+                task.status = 'failed';
+                await updateTaskInJson(task);
             }
         } else {
             console.log(`\n[Eskalasyon] ${task.id} maksimum deneme sınırına (${task.max_retries || 3}) ulaştı!`);
             if (task.tier < 3) {
-                console.log(`[Eskalasyon] ÇÖZÜM 1: Görev Tier 3'e yükseltildi (Claude Code'a devredildi).`);
-                console.log(`[Eskalasyon] Uyarı: Tier 3 otomatik başlatılamayacağı için görev bir sonraki İNTERAKTİF oturuma (sabaha) bekletilecek.`);
-                // Gerçek senaryoda burada tasks.json güncellenir: task.tier = 3;
+                console.log(`[Eskalasyon] ÇÖZÜM 1: Görev Tier 3'e yükseltildi.`);
+                task.tier = 3;
+                task.status = 'pending'; // Yeniden sıraya al
+                await updateTaskInJson(task);
             } else {
                 console.log(`[Dead-Letter] ÇÖZÜM 2: Görev zaten en yüksek Tier'da çözülemedi. İnsan onayı bekleniyor.`);
+                task.status = 'failed';
+                await updateTaskInJson(task);
                 // TODO: Telegram alarmı atılacak
             }
         }
