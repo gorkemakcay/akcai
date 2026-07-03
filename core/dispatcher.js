@@ -61,8 +61,8 @@ async function dispatchTask(task) {
         while (retries < (task.max_retries || 3) && !isValid) {
             retries++;
             let model;
-            if (task.tier === 3) model = "Claude Opus 4.6 (Thinking)";
-            else if (task.tier === 2) model = "Claude Sonnet 4.6 (Thinking)";
+            if (task.tier === 3) model = "Claude Sonnet 4.6 (Thinking)";
+            else if (task.tier === 2) model = "Gemini 3.1 Pro (High)";
             else model = "Gemini 3.5 Flash (High)";
             
             console.log(`[Executor] AGY (${model}) modeline devrediliyor: ${task.id} (Slot: ${slot.id}) - Deneme ${retries}/${task.max_retries || 3}`);
