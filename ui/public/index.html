@@ -341,10 +341,15 @@
             <div class="input-group">
                 <label>Agent Tier</label>
                 <select id="t-tier">
+                    <option value="auto">Auto (Tier 3 Analysis)</option>
                     <option value="1">Tier 1: Gemini 3.5 Flash (Testing/Simple)</option>
                     <option value="2" selected>Tier 2: Gemini 3.1 Pro (Implementation)</option>
                     <option value="3">Tier 3: Claude Sonnet 4.6 (Architecture)</option>
                 </select>
+            </div>
+            <div class="input-group" style="display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="t-goal" style="width: 20px; height: 20px; cursor: pointer;">
+                <label style="margin: 0; cursor: pointer;" for="t-goal">Use /goal (Deep Iteration - Recommended for Tier 3)</label>
             </div>
             <div class="btn-group">
                 <button class="btn-cancel" onclick="closeModal()">Cancel</button>
@@ -390,6 +395,7 @@
                     <div class="task-desc">${task.description}</div>
                     <div class="task-footer">
                         <span class="tier-tag">Tier ${task.tier}</span>
+                        ${task.use_goal ? '<span class="tier-tag" style="color: #38bdf8; border-color: #38bdf8;">🎯 /goal</span>' : ''}
                         ${task.db_required ? '🗄️ DB' : ''}
                     </div>
                 `;
@@ -446,6 +452,7 @@
         function openModal() {
             document.getElementById('t-id').value = `TASK-${Math.floor(Math.random()*1000)+100}`;
             document.getElementById('t-desc').value = '';
+            document.getElementById('t-goal').checked = false;
             document.getElementById('taskModal').classList.add('active');
         }
 
@@ -454,10 +461,12 @@
         }
 
         function saveTask() {
+            const tierVal = document.getElementById('t-tier').value;
             const newTask = {
                 id: document.getElementById('t-id').value,
                 description: document.getElementById('t-desc').value,
-                tier: parseInt(document.getElementById('t-tier').value),
+                tier: tierVal === 'auto' ? 'auto' : parseInt(tierVal),
+                use_goal: document.getElementById('t-goal').checked,
                 status: 'pending',
                 dependencies: [],
                 db_required: false,

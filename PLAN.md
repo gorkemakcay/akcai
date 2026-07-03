@@ -386,6 +386,8 @@ Sınırsız retry hiçbir koşulda izin verilmiyor.
 - [x] **Faz 4:** Başarısız görev eskalasyon kuralının (5o) `max_retries` mantığına eklenmesi
 - [x] **Faz 5:** Subagent şablonlarının (architect / implementer / test-writer) yazılması
 - [x] **Faz 7:** Genelleştirme — `init.sh` ile başka bir projeye taşıma denemesi (Gorkem'in onayıyla şu an yapılabilecek son kodlama adımı)
+- [x] **Faz 8 (YENİ):** Daemon modu ve Kanban Web UI geliştirilmesi. Görevlere isteğe bağlı `/goal` (Sürekli İterasyon) parametresinin eklenmesi.
+- [x] **Faz 8 (YENİ):** Otomatik Görev Analizi — Yeni gelen görevlerin Tier 3 (Mimar) tarafından okunup zorluğuna göre otomatik olarak 1, 2 veya 3. seviyeye atanması.
 
 ## Daha Sonra Yapılacaklar (Ertelenenler)
 - **(Ertelendi) Faz 6:** İlk gerçek projede uçtan uca gece testi — açık bırakılan interaktif oturumun gece insansız davranışının (uyku engelleme, tmux, watchdog) test edilmesi.

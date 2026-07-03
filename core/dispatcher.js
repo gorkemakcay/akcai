@@ -36,6 +36,16 @@ import { QuotaGuard } from './quota-guard.js';
 const wtManager = new WorktreeManager();
 const quotaGuard = new QuotaGuard();
 
+async function updateTaskInJson(updatedTask) {
+    const raw = await fs.readFile(TASKS_FILE, 'utf-8');
+    let tasks = JSON.parse(raw);
+    const index = tasks.findIndex(t => t.id === updatedTask.id);
+    if (index !== -1) {
+        tasks[index] = updatedTask;
+        await fs.writeFile(TASKS_FILE, JSON.stringify(tasks, null, 2));
+    }
+}
+
 async function dispatchTask(task) {
     console.log(`\n[Dispatch] Görev başlatılıyor: ${task.id} (Tier: ${task.tier})`);
     
@@ -44,9 +54,20 @@ async function dispatchTask(task) {
         return false; // Başarısız
     }
 
-    if (task.tier === 3) {
-        console.log(`[Uyarı] Tier 3 görevler bu dispatcher tarafından otomatik başlatılamaz (İnteraktif Claude kuralı).`);
-        return;
+    if (task.tier === "auto") {
+        console.log(`[Analiz] Tier 3 Mimar ajan ${task.id} görevini analiz ediyor...`);
+        try {
+            const analysisPrompt = `Aşağıdaki yazılım görevini analiz et ve zorluğuna göre sadece 1, 2 veya 3 rakamlarından birini dön. (1: Basit test/ufak değişiklik, 2: Standart özellik, 3: Mimari/Büyük sistem değişikliği). Başka hiçbir kelime veya açıklama yazma. Görev: ${task.description}`;
+            const result = await execAsync(`agy --model "Claude Sonnet 4.6 (Thinking)" --print "${analysisPrompt}"`);
+            const suggestedTier = parseInt(result.stdout.trim().replace(/[^123]/g, '')) || 2;
+            task.tier = suggestedTier;
+            console.log(`[Analiz] ${task.id} görevi için Mimar'ın belirlediği seviye: Tier ${suggestedTier}`);
+            await updateTaskInJson(task);
+        } catch (err) {
+            console.error(`[Analiz Hatası] Otomatik tier belirlenemedi, varsayılan Tier 2 atanıyor.`, err.message);
+            task.tier = 2;
+            await updateTaskInJson(task);
+        }
     }
 
     let slot;
@@ -69,10 +90,13 @@ async function dispatchTask(task) {
             
             try {
                 // Ajanın sistem promptu ve görev tanımı
-                const prompt = `Sen bir uygulayıcı (Implementer) ajansın. Mevcut dizin bir git worktree'sidir. Sadece bu görevi yapacaksın: ${task.description}`;
+                let prompt = `Sen bir uygulayıcı (Implementer) ajansın. Mevcut dizin bir git worktree'sidir. Sadece bu görevi yapacaksın: ${task.description}`;
+                if (task.use_goal) {
+                    prompt = `/goal ${prompt}`;
+                    console.log(`[AGY] 🎯 /goal parametresi aktif! Ajan derin iterasyon (Deep Iteration) modunda çalışacak.`);
+                }
                 
                 // agy CLI ile ajanı headless (print) modda başlat.
-                // --dangerously-skip-permissions flag'i, ajanın terminal araçlarını (dosya yazma vb.) onay beklemeden kullanabilmesini sağlar (TAM OTONOMİ).
                 await execAsync(`cd ${slot.path} && agy --model "${model}" --print "${prompt}" --dangerously-skip-permissions`);
                 console.log(`[AGY] ${task.id} için ajan çalışmasını tamamladı.`);
             } catch (err) {
