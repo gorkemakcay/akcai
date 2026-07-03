@@ -27,6 +27,8 @@ mkdir -p "$TARGET_DIR/agent-slots"
 
 # 2. Çekirdek dosyaların kopyalanması
 cp -r "$SCRIPT_DIR/core/"* "$TARGET_DIR/.loop-orchestra/core/"
+mkdir -p "$TARGET_DIR/.loop-orchestra/ui"
+cp -r "$SCRIPT_DIR/ui/"* "$TARGET_DIR/.loop-orchestra/ui/"
 cp "$SCRIPT_DIR/package.json" "$TARGET_DIR/.loop-orchestra/"
 cp "$SCRIPT_DIR/.env.example" "$TARGET_DIR/.loop-orchestra/"
 cp "$SCRIPT_DIR/AGENTS.md" "$TARGET_DIR/"
