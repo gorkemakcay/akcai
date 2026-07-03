@@ -5,9 +5,13 @@
   "main": "core/dispatcher.js",
   "type": "module",
   "scripts": {
-    "start": "node core/dispatcher.js"
+    "start": "node core/dispatcher.js",
+    "start:daemon": "node core/daemon.js",
+    "ui": "node ui/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "dotenv": "^17.4.2"
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
   }
 }
