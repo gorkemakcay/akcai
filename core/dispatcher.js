@@ -8,8 +8,8 @@ const execAsync = util.promisify(exec);
 // dispatcher.js - MVP Orchestrator (Faz 4)
 // Bu dosya tasks.json'ı okur, görevlerin tier'ını belirler ve işi Codex'e delege eder.
 
-const TASKS_FILE = './tasks.json';
-const PROGRESS_FILE = './progress.jsonl';
+const TASKS_FILE = '../tasks.json';
+const PROGRESS_FILE = '../progress.jsonl';
 
 async function checkBeforeHandoff(task) {
     console.log(`[Doğrulama] ${task.id} için quality_gates test ediliyor...`);
@@ -69,14 +69,14 @@ async function dispatchTask(task) {
             
             try {
                 // Ajanın sistem promptu ve görev tanımı
-                const prompt = \`Sen bir uygulayıcı (Implementer) ajansın. Mevcut dizin bir git worktree'sidir. Sadece bu görevi yapacaksın: \${task.description}\`;
+                const prompt = `Sen bir uygulayıcı (Implementer) ajansın. Mevcut dizin bir git worktree'sidir. Sadece bu görevi yapacaksın: ${task.description}`;
                 
                 // agy CLI ile ajanı headless (print) modda başlat.
                 // --dangerously-skip-permissions flag'i, ajanın terminal araçlarını (dosya yazma vb.) onay beklemeden kullanabilmesini sağlar (TAM OTONOMİ).
-                await execAsync(\`cd \${slot.path} && agy --model "\${model}" --print "\${prompt}" --dangerously-skip-permissions\`);
-                console.log(\`[AGY] \${task.id} için ajan çalışmasını tamamladı.\`);
+                await execAsync(`cd ${slot.path} && agy --model "${model}" --print "${prompt}" --dangerously-skip-permissions`);
+                console.log(`[AGY] ${task.id} için ajan çalışmasını tamamladı.`);
             } catch (err) {
-                console.error(\`[AGY] Ajan çalışırken hata fırlattı:\`, err.message);
+                console.error(`[AGY] Ajan çalışırken hata fırlattı:`, err.message);
             }
             
             isValid = await checkBeforeHandoff(task);

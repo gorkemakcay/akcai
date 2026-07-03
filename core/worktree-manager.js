@@ -9,7 +9,7 @@ const execAsync = util.promisify(exec);
 // DB istenirse o slota ait "db_template" tabanlı bir Postgres konteyneri canlandırılır.
 
 const SLOTS_COUNT = 4;
-const WORKTREE_BASE_DIR = './agent-slots';
+const WORKTREE_BASE_DIR = '../agent-slots';
 
 export class WorktreeManager {
     constructor() {

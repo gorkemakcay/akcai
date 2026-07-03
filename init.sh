@@ -12,6 +12,7 @@ if [ -z "$1" ]; then
 fi
 
 TARGET_DIR=$(realpath "$1")
+SCRIPT_DIR=$(dirname $(realpath "$0"))
 
 if [ ! -d "$TARGET_DIR" ]; then
   echo "Hata: Hedef dizin bulunamadı: $TARGET_DIR"
@@ -25,15 +26,15 @@ mkdir -p "$TARGET_DIR/.loop-orchestra/core/prompts"
 mkdir -p "$TARGET_DIR/agent-slots"
 
 # 2. Çekirdek dosyaların kopyalanması
-cp -r ./core/* "$TARGET_DIR/.loop-orchestra/core/"
-cp ./package.json "$TARGET_DIR/.loop-orchestra/"
-cp ./.env.example "$TARGET_DIR/.loop-orchestra/"
-cp ./AGENTS.md "$TARGET_DIR/"
-cp ./CLAUDE.md "$TARGET_DIR/"
+cp -r "$SCRIPT_DIR/core/"* "$TARGET_DIR/.loop-orchestra/core/"
+cp "$SCRIPT_DIR/package.json" "$TARGET_DIR/.loop-orchestra/"
+cp "$SCRIPT_DIR/.env.example" "$TARGET_DIR/.loop-orchestra/"
+cp "$SCRIPT_DIR/AGENTS.md" "$TARGET_DIR/"
+cp "$SCRIPT_DIR/CLAUDE.md" "$TARGET_DIR/"
 
 # 3. Örnek tasks.json oluşturulması (varsa atla)
 if [ ! -f "$TARGET_DIR/tasks.json" ]; then
-  cp ./tasks.json "$TARGET_DIR/"
+  cp "$SCRIPT_DIR/tasks.json" "$TARGET_DIR/"
   echo "Örnek tasks.json oluşturuldu."
 fi
 
