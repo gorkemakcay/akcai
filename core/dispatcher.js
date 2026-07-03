@@ -80,7 +80,7 @@ async function dispatchTask(task) {
         console.log(`[Analiz] Tier 3 Mimar ajan ${task.id} görevini analiz ediyor...`);
         try {
             const analysisPrompt = `Aşağıdaki yazılım görevini analiz et ve zorluğuna göre sadece 1, 2 veya 3 rakamlarından birini dön. (1: Basit test/ufak değişiklik, 2: Standart özellik, 3: Mimari/Büyük sistem değişikliği). Başka hiçbir kelime veya açıklama yazma. Görev: ${task.description}`;
-            const result = await execAsync(`agy --model "Claude Sonnet 4.6 (Thinking)" --print "${analysisPrompt}"`);
+            const result = await execAsync(`agy --model "Claude Sonnet 4.6 (Thinking)" --print "${analysisPrompt}" --dangerously-skip-permissions`);
             const suggestedTier = parseInt(result.stdout.trim().replace(/[^123]/g, '')) || 2;
             task.tier = suggestedTier;
             console.log(`[Analiz] ${task.id} görevi için Mimar'ın belirlediği seviye: Tier ${suggestedTier}`);
