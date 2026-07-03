@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Loop Orchestra Task Schema",
+  "type": "object",
+  "required": ["id", "description", "tier", "status"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Görev için benzersiz kimlik (örn: task-001)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Görev detayı (Claude/Codex'e verilecek ana prompt)"
+    },
+    "tier": {
+      "type": "integer",
+      "enum": [1, 2, 3],
+      "description": "Görevin zorluk seviyesi (1: Rutin, 2: Orta, 3: Mimari)"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "in-progress", "completed", "failed"],
+      "description": "Görevin güncel durumu"
+    },
+    "dependencies": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Bu görev başlamadan önce bitmesi gereken görev ID'leri"
+    },
+    "quality_gates": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Doğrulama için çalıştırılacak shell komutları (örn: ['npm test'])"
+    },
+    "files_touched": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Paralel çakışmayı önlemek için dokunulacak tahmini dosyalar"
+    },
+    "completion_promise": {
+      "type": "string",
+      "description": "Ajanın işi bitirdiğini kanıtlayan çıktı etiketi (örn: <promise>task-001-DONE</promise>)"
+    },
+    "max_retries": {
+      "type": "integer",
+      "default": 3,
+      "description": "Görev başarısız olursa kaç kez tekrar deneneceği"
+    },
+    "db_required": {
+      "type": "boolean",
+      "default": false,
+      "description": "Bu görev için izole bir veritabanı konteynerine ihtiyaç var mı?"
+    },
+    "max_tokens": {
+      "type": "integer",
+      "description": "Maliyet ve Context-rot kontrolü için görev başına token limiti"
+    }
+  }
+}

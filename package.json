@@ -1,0 +1,13 @@
+{
+  "name": "loop-orchestra",
+  "version": "1.0.0",
+  "description": "Autonomous AI Agent Orchestrator",
+  "main": "core/dispatcher.js",
+  "type": "module",
+  "scripts": {
+    "start": "node core/dispatcher.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2"
+  }
+}

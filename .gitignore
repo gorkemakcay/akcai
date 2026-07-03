@@ -1,0 +1,19 @@
+# Environment Variables
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Worktree Manager Slots (Çok fazla dosya ve DB içerebilir, repo'ya atılmaz)
+agent-slots/
+
+# Görev ve Log Dosyaları
+tasks.json
+progress.jsonl
+
+# İşletim Sistemi
+.DS_Store
+Thumbs.db
